@@ -1,0 +1,231 @@
+{
+  "name": "Chat llm chain",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "chat",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "00b8e75b-5fc0-466f-baa9-50a89bd3c6aa",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        272,
+        16
+      ],
+      "webhookId": "ai-chat-webhook"
+    },
+    {
+      "parameters": {
+        "model": "qwen2.5:3b",
+        "options": {
+          "temperature": 0.7
+        }
+      },
+      "id": "8455f62d-bf68-410c-956d-ba71e47fc980",
+      "name": "Ollama Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        640,
+        272
+      ],
+      "credentials": {
+        "ollamaApi": {
+          "id": "vZL0pEQHaB4QJ1e0",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "firstIncomingItem",
+        "options": {
+          "putResponseInField": "response"
+        }
+      },
+      "id": "e2630829-89c4-4152-9e6d-2e8e37b8c78e",
+      "name": "Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        1088,
+        16
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "g79308i3-e148-8h23-f20j-g9ji1h81i22e",
+              "name": "response",
+              "value": "={{ $json.text || $json[0].text || $json.output || $json.message || 'No response generated' }}",
+              "type": "string"
+            },
+            {
+              "id": "h80419j4-f259-9i34-g31k-h0kj2i92j33f",
+              "name": "messageId",
+              "value": "={{ $('Webhook').json.body.messageId }}",
+              "type": "number"
+            },
+            {
+              "id": "i91520k5-g360-0j45-h42l-i1lk3j03k44g",
+              "name": "conversationId",
+              "value": "={{ $('Webhook').json.body.conversationId }}",
+              "type": "number"
+            },
+            {
+              "id": "j02631l6-h471-1k56-i53m-j2ml4k14l55h",
+              "name": "timestamp",
+              "value": "={{ new Date().toISOString() }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "f79308i3-e148-8h23-f20j-g9ji1h81i22e",
+      "name": "Format Response",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        900,
+        16
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a helpful AI travel assistant. Respond to the user's message in the language of the user. Be friendly, helpful and concise. Do not repeat greetings or introductions unless the user starts a new conversation.\n\nPrevious conversation:\n{{ $json.chatInput }}\n\nCurrent user message: {{ $json.message }}\n\nRespond naturally to the current message, considering the conversation context."
+      },
+      "id": "3585969e-312e-4e26-8ae6-47b7c76e2c54",
+      "name": "Chat LLM Chain",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "position": [
+        656,
+        16
+      ],
+      "typeVersion": 1.4
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c35064e9-a714-4d89-b86f-c5fe7d47e89a",
+              "name": "chatInput",
+              "value": "={{ $input.first().json.body.chatInput }}",
+              "type": "string"
+            },
+            {
+              "id": "d46075f0-b825-5e90-c97g-d6gf8e58f99b",
+              "name": "conversationHistory",
+              "value": "={{ $input.first().json.body.conversationHistory }}",
+              "type": "array"
+            },
+            {
+              "id": "e57186g1-c936-6f01-d08h-e7hg9f69g00c",
+              "name": "messageId",
+              "value": "={{ $input.first().json.body.messageId }}",
+              "type": "number"
+            },
+            {
+              "id": "f68297h2-d047-7g12-e19i-f8ih0g70h11d",
+              "name": "conversationId",
+              "value": "={{ $input.first().json.body.conversationId }}",
+              "type": "number"
+            },
+            {
+              "id": "g79308i3-e148-8h23-f20j-g9ji1h81i22f",
+              "name": "message",
+              "value": "={{ $input.first().json.body.message }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        464,
+        16
+      ],
+      "id": "01ed72b7-bdae-472e-99f3-38ff9d8661c8",
+      "name": "Edit Fields"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Chat LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chat LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Format Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Chat LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Response": {
+      "main": [
+        [
+          {
+            "node": "Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "9975e178-f124-4af1-94b2-9526c8b03f66",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "dc93e5a33d932d690229d9ae1e62f997dc2471c45b05145da60a5791ff8d1ebb"
+  },
+  "id": "Mgsw86yS1tG8cZGd",
+  "tags": []
+}

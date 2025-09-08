@@ -1,0 +1,15 @@
+{
+  "name": "directus-chat-extension",
+  "version": "1.0.0",
+  "description": "Chat extension for Directus with n8n and Ollama integration",
+  "main": "index.js",
+  "dependencies": {
+    "node-fetch": "^3.3.0"
+  },
+  "directus:extension": {
+    "type": "endpoint",
+    "path": "index.js",
+    "source": "src",
+    "host": "^11.0.0"
+  }
+}

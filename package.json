@@ -1,0 +1,16 @@
+{
+  "name": "chat-server",
+  "version": "1.0.0",
+  "description": "Direct chat server bypassing Directus extensions",
+  "main": "chat-server.js",
+  "scripts": {
+    "start": "node chat-server.js",
+    "test": "node test-chat-server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "node-fetch": "^2.7.0",
+    "pg": "^8.8.0",
+    "cors": "^2.8.5"
+  }
+}
