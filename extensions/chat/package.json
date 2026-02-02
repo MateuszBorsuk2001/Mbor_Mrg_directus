@@ -10,10 +10,6 @@
   "directus:extension": {
     "type": "endpoint",
     "path": "dist/index.js",
-    "source": "src/index.js",
     "host": "^11.5.0"
-  },
-  "dependencies": {
-    "node-fetch": "^3.3.0"
   }
 }

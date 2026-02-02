@@ -7,12 +7,12 @@ services:
             POSTGRES_DB: directus
             POSTGRES_USER: directus
             POSTGRES_PASSWORD: directus
-            POSTGRES_MULTIPLE_DATABASES: directus
         volumes:
             - postgres_data:/var/lib/postgresql/data
-            - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
-            - ./init-travel-schema.sql:/docker-entrypoint-initdb.d/init-travel-schema.sql
-            - ./init-chat-schema.sql:/docker-entrypoint-initdb.d/init-chat-schema.sql
+            - ./database/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+            - ./database/init-travel-schema.sql:/docker-entrypoint-initdb.d/init-travel-schema.sql
+            - ./database/init-chat-schema.sql:/docker-entrypoint-initdb.d/init-chat-schema.sql
+            - ./database/register-chat-collections.sql:/docker-entrypoint-initdb.d/register-chat-collections.sql
         ports:
             - "5432:5432"
         healthcheck:
@@ -63,13 +63,17 @@ services:
         build:
             context: ../travel-search-frontend
             dockerfile: Dockerfile
+            args:
+                VITE_DIRECTUS_URL: ${VITE_DIRECTUS_URL:-http://localhost:8055}
+                VITE_DIRECTUS_TOKEN: ${VITE_DIRECTUS_TOKEN:-}
+                VITE_APP_TITLE: ${VITE_APP_TITLE:-TravelSearch}
+                VITE_APP_DESCRIPTION: ${VITE_APP_DESCRIPTION:-Find your dream travel destination}
         ports:
             - "3000:80"
         container_name: travel-search-frontend
         restart: unless-stopped
         environment:
             - NODE_ENV=production
-            - VITE_DIRECTUS_URL=http://localhost:8055
         depends_on:
             - directus
 

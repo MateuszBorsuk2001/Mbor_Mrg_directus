@@ -2,7 +2,7 @@
 CREATE TABLE IF NOT EXISTS conversations (
     id SERIAL PRIMARY KEY,
     title VARCHAR(255),
-    user_id VARCHAR(255),
+    user_id UUID REFERENCES directus_users(id) ON DELETE CASCADE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -12,7 +12,7 @@ CREATE TABLE IF NOT EXISTS chat_messages (
     id SERIAL PRIMARY KEY,
     message TEXT NOT NULL,
     type VARCHAR(10) NOT NULL CHECK (type IN ('user', 'bot')),
-    user_id VARCHAR(255),
+    user_id UUID REFERENCES directus_users(id) ON DELETE CASCADE,
     conversation_id INTEGER REFERENCES conversations(id) ON DELETE CASCADE,
     timestamp TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     status VARCHAR(20) DEFAULT 'sent',
